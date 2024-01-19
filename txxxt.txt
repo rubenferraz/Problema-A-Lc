@@ -1,0 +1,107 @@
+Var a -> a; verifica se a fórmula lógica form é uma única variável (sem operadores lógicos). Se for esse o caso, a função to_nors retorna a variável sem fazer nenhuma conversão.
+
+------------------------------------------------------------------------------
+
+| And (a, b) ->
+      let a_nor = to_nors a in
+      let b_nor = to_nors b in
+      "((" ^ a_nor ^ " % " ^ a_nor ^ ")" ^ " % " ^ "(" ^ b_nor ^ " % " ^ b_nor
+      ^ "))"
+
+      ; Os valores "a" e "b" são armazenados nas variáveis "a_nors" e "b_nor" que serão convertidos para a fórmula NOR.
+
+      A operação "And" entre "a" e "b" é representada como  NOR(NOR(a,b)NOR(b,b)).
+
+      Em lógica proposicional podemos representar (A ∧ B) em NOR assim; ((A%A)%(B%B)) onde % representa o operador NOR.
+
+
+------------------------------------------------------------------------------
+
+| Or (a, b) ->
+      let a_nor = to_nors a in
+      let b_nor = to_nors b in
+      "((" ^ a_nor ^ " % " ^ b_nor ^ ")" ^ " % " ^ "(" ^ a_nor ^ " % " ^ b_nor
+      ^ "))"
+
+
+      ;A operação "OR" entre "a" e "b" é representada como; NOR(NOR(a,b),NOR(a,b))
+
+      Em lógica proposicional podemos representar por ((A%B)%(A%B))
+
+
+------------------------------------------------------------------------------
+
+| True ->
+      let convertido = Not (False) in 
+      to_nors convertido
+
+      ;A constante "True" é convertida numa negação da constante "False" usando a expressão "Not(False)"
+
+      A constante "True" pode ser representada como ¬False. Ao chamar a função "to_nors" com a subfórmula "Not(False)", a função converte ¬F em NOR.
+
+      "False" pode ser representado assim; NOR(A,¬A)
+      A negação de "False" (¬F) pode ser representado assim; NOR(NOR(A,¬A),NOR(A,¬A))
+
+------------------------------------------------------------------------------
+
+ | False ->
+      let convertido = Not (Or (Var "Z", Not (Var "Z"))) in
+      to_nors convertido
+      
+
+    ;A constante "False" é convertida em uma negação de uma expressão "OR" entre uma variável "Z" e sua negação "Not (Var "Z")"
+
+    A função to_nors é chamada novamente com a subfórmula "convertido". Isso significa que o processamento da constante "False" será realizado pela parte do código "Not a".
+
+    Em termos de lógica proposicional, aconstante "False" pode ser representada como a negação de uma expressão "OR" entre a variável "Z" e sua negação ¬Z, ou seja, ¬(Z ∨ ¬Z).
+
+    "to_nors" converte ¬(Z ∨ ¬Z) para; NOR(NOR(NOR(Z, ¬Z), NOR(Z, ¬Z)), NOR(NOR(Z, ¬Z), NOR(Z, ¬Z)))
+
+------------------------------------------------------------------------------
+
+    | Not (Or (a, b)) -> 
+    let a_nor = to_nors a in 
+    let b_nor = to_nors b in 
+    "("^a_nor^" % "^b_nor^")"
+
+    ; Isto é uma subfórmula que é a negação de uma disjunção (ou "OR"), ou seja, Not (Or (a, b))
+
+    A negação da disjunção (¬(A ∨ B)) pode ser diretamente representada em termos de operações NOR como (A NOR B). Portanto, a representação em fórmula proposicional da subfórmula em questão é (A NOR B)
+
+------------------------------------------------------------------------------
+
+
+| Not a ->
+      let a_nor = to_nors a in
+      "(" ^ a_nor ^ " % " ^ a_nor ^ ")"
+
+; Isto é uma subfórmula que é a negação de uma variável ou expressão, ou seja, Not a.
+
+A negação de A (¬A) pode ser representada em termos de operações NOR como (A NOR A). Portanto, a representação em fórmula proposicional da subfórmula em questão é (A NOR A).
+
+
+------------------------------------------------------------------------------
+
+ | Implies (a, b) ->
+      let a_nor = to_nors (Not a) in
+      let b_nor = to_nors b in
+      "(" ^ "(" ^ a_nor ^ " % " ^ b_nor ^ ")" ^ " % " ^ "(" ^ a_nor ^ " % " ^ b_nor
+      ^ "))"
+
+      ; A subfórmula Implies (a, b) é convertida para a forma NOR usando as representações NOR de Not a e b
+
+      A implicação (A → B) é equivalente à expressão (¬A ∨ B)
+
+      Portanto, a representação em fórmula proposicional da subfórmula em questão é NOR(NOR(¬A, B), NOR(¬A, B)).
+
+
+
+------------------------------------------------------------------------------
+
+| Equiv (a, b) ->
+      let convertido = And (Or (Not a, b), Or (Not b, a)) in
+      to_nors convertido
+
+      ; A equivalência (A ↔ B) é convertida para uma expressão equivalente usando operações AND e OR: (¬A ∨ B) ∧ (¬B ∨ A)
+
+      Portanto, a representação em fórmula proposicional da subfórmula em questão é a forma NOR da expressão [(¬A ∨ B) ∧ (¬B ∨ A)].
